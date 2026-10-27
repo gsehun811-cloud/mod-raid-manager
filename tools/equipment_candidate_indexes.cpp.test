@@ -1,0 +1,150 @@
+#include "RaidEquipmentCandidateRules.h"
+#include <algorithm>
+#include <iostream>
+#include <iterator>
+#include <vector>
+
+using namespace RaidManager;
+
+namespace
+{
+    #include "candidate-index-oracle.inc"
+
+    uint8 const Classes[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 11};
+
+    std::size_t CatalogIndex(CandidateCatalogEntry const* item)
+    {
+        return static_cast<std::size_t>(item - GetCatalogCandidate(0));
+    }
+
+    bool OracleAllows(CandidateCatalogEntry const* item, uint8 cls)
+    {
+        return item && (IndexOracleMasks[CatalogIndex(item)] & (1u << (cls - 1)));
+    }
+
+    bool DynamicFixture(CandidateCatalogEntry const& item, uint8 cls, uint8 mode, bool dungeon, float& score)
+    {
+        if (mode == 2 || (mode == 1 && dungeon) || ((item.item ^ cls) % 7 == 0))
+            return false;
+        ProtectedStats current;
+        current.hit = 3;
+        current.expertise = 2;
+        ProtectedStats candidate;
+        candidate.hit = static_cast<float>((item.item >> 2) % 10);
+        candidate.expertise = static_cast<float>((item.item >> 5) % 8);
+        if (!PreservesRoleFloors(ProtectionRole::Physical, current, candidate))
+            return false;
+        uint32 mixed = item.item * 1664525u + static_cast<uint32>(cls) * 1013904223u + mode;
+        score = static_cast<float>((mixed >> 8) % 1000) / 10.0f;
+        return IsImprovement(50.0f, score);
+    }
+
+    uint32 ModelSelection(bool indexed, CandidateLimits const& limits, uint8 cls, uint8 slot, uint8 mode)
+    {
+        for (bool dungeon : {true, false})
+        {
+            auto range = indexed ? GetIndexedCandidatePool(limits.stage, cls, slot, limits.ilvl) :
+                GetCandidatePool(slot, limits.ilvl);
+            uint32 best = 0;
+            float bestScore = 0;
+            auto route = dungeon ? CandidateRoute::Dungeon : CandidateRoute::IlvlFallback;
+            for (auto i = range.first; i < range.second; ++i)
+            {
+                auto item = indexed ? GetIndexedPoolCandidate(i) : GetPoolCandidate(i);
+                if (!OracleAllows(item, cls) || CheckCandidateLimits(*item, limits, limits.maximumLevel) !=
+                    CandidateRejection::None || static_cast<int32>(item->requiredLevel) < limits.maximumLevel - 20)
+                    continue;
+                if (dungeon && (!item->dungeonStage || item->dungeonStage > limits.stage))
+                    continue;
+                float score = 0;
+                if (DynamicFixture(*item, cls, mode, dungeon, score) &&
+                    PreferCandidate(route, score, item->item, route, bestScore, best))
+                {
+                    best = item->item;
+                    bestScore = score;
+                }
+            }
+            if (best)
+                return best;
+        }
+        return 900001; // Usable existing equipment is retained, including gear above the current cap.
+    }
+}
+
+bool RunIndexRegression()
+{
+    if (GetCandidateCatalogSize() != std::size(IndexOracleMasks) || GetCandidateCatalogSize() > 65536)
+        return false;
+    uint32 snapshots = 0;
+    for (std::size_t index = 0; index < GetCandidateCatalogSize(); ++index)
+    {
+        bool unsupported = IndexOracleUnsupported[index] != 0;
+        auto raw = IndexOracleRawMasks[index];
+        if (!MatchesCandidateIndexSnapshot(index, raw, unsupported) ||
+            MatchesCandidateIndexSnapshot(index, static_cast<uint16>(raw ^ 1), unsupported) ||
+            MatchesCandidateIndexSnapshot(index, raw, !unsupported))
+            return false;
+        ++snapshots;
+    }
+    uint32 buckets = 0;
+    for (uint8 stage = 1; stage <= 18; ++stage)
+        for (auto cls : Classes)
+            for (uint8 slot = 0; slot < 19; ++slot)
+            {
+                uint8 level = stage < 7 ? 60 : stage < 13 ? 70 : 80;
+                CandidateLimits limits{65535, stage, level, 0, 15};
+                std::vector<uint32> expected;
+                auto legacy = GetCandidatePool(slot, 65535);
+                for (auto i = legacy.first; i < legacy.second; ++i)
+                {
+                    auto item = GetPoolCandidate(i);
+                    auto stageOnly = *item;
+                    stageOnly.observedRaid = false; // Difficulty remains a runtime filter, outside this index.
+                    if (OracleAllows(item, cls) &&
+                        CheckCandidateLimits(stageOnly, limits, level) == CandidateRejection::None)
+                        expected.push_back(item->item);
+                }
+                auto optimized = GetIndexedCandidatePool(stage, cls, slot, 65535);
+                std::vector<uint32> actual;
+                for (auto i = optimized.first; i < optimized.second; ++i)
+                    actual.push_back(GetIndexedPoolCandidate(i)->item);
+                if (actual != expected)
+                {
+                    std::cerr << "Index bucket mismatch: " << unsigned(stage) << '/' << unsigned(cls)
+                        << '/' << unsigned(slot) << '\n';
+                    for (auto item : actual)
+                        if (std::find(expected.begin(), expected.end(), item) == expected.end())
+                            std::cerr << "unexpected " << item << '\n';
+                    for (auto item : expected)
+                        if (std::find(actual.begin(), actual.end(), item) == actual.end())
+                            std::cerr << "missing " << item << '\n';
+                    return false;
+                }
+                ++buckets;
+            }
+    uint32 selections = 0;
+    for (auto const& profile : OracleProfiles)
+    {
+        auto limits = GetCandidateLimits(profile.map, profile.difficulty, profile.capacity);
+        for (auto cls : Classes)
+            for (uint8 slot = 0; slot < 19; ++slot)
+                for (uint8 fixture = 0; fixture < 3; ++fixture)
+                {
+                    auto oldResult = ModelSelection(false, limits, cls, slot, fixture);
+                    auto newResult = ModelSelection(true, limits, cls, slot, fixture);
+                    if (oldResult != newResult || (fixture == 2 && newResult != 900001))
+                        return false;
+                    ++selections;
+                }
+    }
+    auto memory = GetCandidateIndexMemoryBytes();
+    if (memory >= 5 * 1024 * 1024)
+        return false;
+    auto invalid = GetIndexedCandidatePool(0, 1, 0, 100);
+    if (invalid.first || invalid.second || GetIndexedCandidatePool(4, 10, 0, 100).second)
+        return false;
+    std::cout << "Index regression: " << snapshots << " snapshot/fallback guards, " << buckets
+        << " ordered candidate buckets, " << selections << " dynamic fixture selections matched; memory="
+        << memory << " bytes, catalog_entry=" << sizeof(CandidateCatalogEntry) << " bytes\n";
+    return true;
+}

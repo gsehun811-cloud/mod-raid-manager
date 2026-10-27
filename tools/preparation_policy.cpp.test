@@ -1,0 +1,195 @@
+#include "RaidPreparationBudget.h"
+#include "RaidPreparationQueue.h"
+#include "RaidPreparationSets.h"
+#include <deque>
+#include <iostream>
+#include <set>
+#include <vector>
+
+using namespace RaidManager;
+
+namespace
+{
+    #include "preparation-set-oracle.inc"
+
+    bool BudgetRegression()
+    {
+        PreparationBudget budget;
+        budget.Observe(0, 1);
+        if (budget.Begin(0) != 3000)
+            return false;
+        budget.Charge(21000); // One non-preemptible talent operation must incur full debt.
+        budget.Observe(50000, 1);
+        if (budget.Begin(50000))
+            return false;
+        budget.Observe(1000000, 250);
+        if (budget.Begin(1000000) != 500)
+            return false;
+        budget.Charge(500);
+        budget.Observe(1100000, 1);
+        if (budget.Begin(1100000))
+            return false;
+        budget.Observe(1250000, 1);
+        if (budget.Begin(1250000) != 500)
+            return false;
+        budget.Charge(500);
+        budget.Observe(4000000, 1);
+        if (budget.Begin(4000000) != 3000 || !budget.throttled || budget.maximumSliceUs != 21000)
+            return false;
+        return true;
+    }
+
+    struct Task
+    {
+        int id = 0;
+        int stage = 0;
+        int remaining = 600;
+    };
+
+    uint64 Simulate(int count, bool cancel, bool lag)
+    {
+        PreparationBudget budget;
+        std::deque<Task> ready;
+        std::set<int> reserved;
+        int admitted = 0;
+        int finished = 0;
+        int committed = 0;
+        bool prefer = true;
+        bool cancelled = false;
+        uint64 now = 0;
+        while (now < 180000000)
+        {
+            if (cancel && admitted >= count / 2)
+                cancelled = true;
+            budget.Observe(now, lag && now >= 1000000 && now < 1500000 ? 250 : 1);
+            uint32 allowance = budget.Begin(now);
+            if (allowance)
+            {
+                uint64 elapsed = 0;
+                for (int steps = 0; steps < 32 && elapsed < allowance; ++steps)
+                {
+                    auto pick = PickPreparationTask(ready, admitted < count, cancelled, prefer,
+                        [](Task const& t) { return t.stage < 2; });
+                    if (!pick.available)
+                        break;
+                    if (pick.admit)
+                    {
+                        if (admitted != committed || !reserved.insert(admitted).second)
+                            return 0; // No duplicate role reservation while another talent commitment is pending.
+                        ready.push_back({admitted++, 0, 600});
+                        elapsed += 80;
+                        continue;
+                    }
+                    auto task = ready[pick.index];
+                    ready.erase(ready.begin() + pick.index);
+                    bool heavy = false;
+                    bool done = false;
+                    if (cancelled)
+                    {
+                        elapsed += 2000;
+                        heavy = done = true;
+                    }
+                    else if (task.stage < 2)
+                    {
+                        elapsed += task.stage == 0 ? 450 : 14000;
+                        if (++task.stage == 2)
+                            ++committed;
+                        heavy = true;
+                    }
+                    else if (!task.remaining)
+                    {
+                        elapsed += 2000;
+                        heavy = done = true;
+                    }
+                    else
+                    {
+                        --task.remaining;
+                        elapsed += 80;
+                    }
+                    if (done)
+                    {
+                        if (reserved.erase(task.id) != 1)
+                            return 0;
+                        ++finished;
+                    }
+                    else
+                        ready.push_back(task);
+                    if (heavy)
+                        break;
+                }
+                budget.Charge(elapsed);
+                now += elapsed;
+            }
+            if ((cancelled || admitted == count) && ready.empty())
+            {
+                if (!reserved.empty() || finished != admitted || (cancel && admitted > count / 2))
+                    return 0;
+                // A final atomic save may finish in debt; its complete cost remains charged.
+                // Earlier non-preemptible overruns must still have delayed subsequent admissions.
+                if (budget.workUs > 3000 + now * 30 / 1000 + 21000)
+                    return 0;
+                return now;
+            }
+            now += 1000;
+        }
+        return 0;
+    }
+}
+
+bool RunPreparationRegression()
+{
+    if (!BudgetRegression())
+    {
+        std::cerr << "Preparation budget regression failed\n";
+        return false;
+    }
+    uint32 records = 0;
+    for (auto const& row : ExpectedBisRecords)
+    {
+        std::map<uint8, uint32> live;
+        bool allRepresentable = true;
+        for (uint8 slot = 0; slot < 19; ++slot)
+            if (row.mask & (1u << slot))
+            {
+                live[slot] = row.items[slot];
+                allRepresentable = allRepresentable && GetCandidateMetadata(row.items[slot]);
+            }
+        auto record = GetPreparedBis(row.key, row.cls, row.tab, row.faction);
+        if (PreparedBisMatches(record, live) != allRepresentable)
+        {
+            std::cerr << "BiS mismatch: " << row.key << '/' << unsigned(row.cls) << '/'
+                << unsigned(row.tab) << '/' << unsigned(row.faction) << '\n';
+            return false;
+        }
+        if (allRepresentable)
+        {
+            for (auto const& [slot, item] : live)
+                if (PreparedBisItem(record, slot) != item)
+                    return false;
+            live[0] = 999999;
+            if (PreparedBisMatches(record, live))
+                return false; // Changed live cache must use the legacy values.
+        }
+        ++records;
+    }
+    auto bear = GetPreparedSet(309, 0, 20, 11, 10, 0, 1, 78);
+    if (!bear || GetPreparedSet(309, 0, 20, 11, 10, 1, 1, 78) ||
+        GetPreparedSet(309, 0, 20, 11, 10, 0, 1, 999) ||
+        GetPreparedSet(309, 1, 20, 11, 10, 0, 1, 78) || GetPreparedSetCount() != 2304)
+        return false;
+    for (uint8 slot = 0; slot < 19; ++slot)
+        for (uint8 i = 0; i < bear->counts[slot]; ++i)
+            if (!PreparedHintContains(bear, slot, GetCatalogCandidate(bear->hints[slot][i])->item))
+                return false;
+    auto normal19 = Simulate(19, false, false);
+    auto normal39 = Simulate(39, false, false);
+    auto lag19 = Simulate(19, false, true);
+    if (!normal19 || !normal39 || !lag19 || lag19 <= normal19 ||
+        !Simulate(19, true, false) || !Simulate(39, true, true))
+        return false;
+    std::cout << "Preparation regression: " << records << " independent faction-merged BiS inputs; "
+        << GetPreparedSetCount() << " prepared sets; set memory=" << GetPreparedSetMemoryBytes()
+        << " bytes; budget/debt/lag/role-commit/19+39/cancellation passed; synthetic 19="
+        << normal19 / 1000 << "ms 39=" << normal39 / 1000 << "ms lag19=" << lag19 / 1000 << "ms\n";
+    return true;
+}

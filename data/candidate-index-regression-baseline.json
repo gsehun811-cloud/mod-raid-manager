@@ -1,0 +1,24 @@
+{
+  "items": "28517e94f2be3578e6c3bbcb0141ccb21ea6e52e9097b84729b59388c01611d1",
+  "ceilings": "0296cbe47ade1214fc89f203137870c8ff632aca908ec972419883918394707a",
+  "files": {
+    "RaidPreparationEquipment.cpp": "5d8cda6eeaf860028e747a107eb908b041f79db5a178ce98ca7f84003dc7396a",
+    "RaidGroupRecruitment.cpp": "7826d9eea781d1a23c7a74f1929625d2309525bd3fc464cf4d26bcc7b8ed43f9",
+    "RaidPromotionPolicy.cpp": "33b6a3a7dfec7efc9f784347e6838ae739d9a85b00010c9a9d8d7c212d364c33",
+    "RaidWork.cpp": "58426dec7be243efda289bfff7fe1fd0bab080eee7a57c7c87e9e5e49b7dd596"
+  },
+  "functions": {
+    "RaidEquipmentSelection.cpp:EvaluatorMatchesRole": "05b246d832d004eab084b52cc13275a889172cf614cd7a59d28b31376316b56f",
+    "RaidEquipmentSelection.cpp:CollectorFor": "10f25ad265d1b2b1f80fdadbe099cf12e437b0b3ed4bf4ff8dcdd03812a3cb45",
+    "RaidEquipmentSelection.cpp:Score": "21640c7c6c89567858b43f3de8f398a76e94aab4d36cfb34911fe86a1d4f3717",
+    "RaidEquipmentSelection.cpp:CollectActualStats": "30141e8e1186930a29ed3971b96d222f53f4eaf8c600b47ad154ca8f258ea808",
+    "RaidEquipmentSelection.cpp:RoleFloors": "1f91141a0c58fa9434190647dab89e8edb260a8872067f1915fb98dba126d9dc",
+    "RaidEquipmentSelection.cpp:WeaponFitsRole": "00162f2328063b5f52661adddfb207d8d78a4671764233158680203cec04e3b0",
+    "RaidEquipmentCandidateRules.cpp:CheckCandidateLimits": "318068c1c6ae57311327bd4f035021c8ab2bf6db34346625663ba732c4136348",
+    "RaidEquipmentCandidateRules.cpp:IsImprovement": "e6b99ce5a3553178539ac95c917c7d6dc98d2166ec78475bc04dcad84ce8a825",
+    "RaidEquipmentCandidateRules.cpp:PreservesRoleFloors": "6ceffe5288763f036ae7bff83b2971bd0a34376bbcf9d435f19985c5c5dfb826",
+    "RaidEquipmentCandidateRules.cpp:PreferCandidate": "55dcf31a9894e78f5cb93b0d1beb8b904e07b0c8ac78406d24fb92bf81cd1288",
+    "RaidEquipmentCandidateRules.cpp:GetPreviousBisKeys": "598f66d6bd058102ab9c6d12f9b94f77ffd0881712958d8c56824505f10de451",
+    "RaidPreparation.cpp:LearnStep": "00a24388fc6a090802f1ade6caadf268d863ca53c936c460b89882046a71a4e8"
+  }
+}

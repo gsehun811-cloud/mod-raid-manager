@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "upstream_commit": null,
+  "reason": "Validated against an archived source tree with no recoverable Git revision metadata",
+  "language": "C++20",
+  "validated_build": "Windows x64, Visual Studio 2026, Release",
+  "source_sha256": {
+    "src/server/game/Entities/Item/ItemTemplate.h": "ba59e1dc1d72e2a0ea855533b9def8295a16493b203686a46cdd8fffcad16402",
+    "src/server/shared/SharedDefines.h": "cb95cb990c20135ea0f7b708562d58ce9a7b358e014ceda4eafe3fd5741f8f3e",
+    "src/server/game/Globals/ObjectMgr.h": "3fcce66e46154507c2a461f074c2e6b4f0404f6e13b8be3bfbb5134e4342072e",
+    "src/server/game/Scripting/ScriptDefines/WorldScript.h": "64687aad84be128bd9bd5376700bb57f9a430ec6c850fff3adb4f20d1465c859",
+    "modules/mod-playerbots/src/Script/WorldThr/PlayerbotOperation.h": "e7094c531333ad2b0fd1437079f9d5b1fa8fa88637770e91ff0f97b46b81a557",
+    "modules/mod-playerbots/src/Script/WorldThr/PlayerbotOperations.h": "cb9958d043452702b837fce4cc7cc1434f50ae4eb769aba9234422006e220fe6",
+    "modules/mod-playerbots/src/Script/WorldThr/PlayerbotWorldThreadProcessor.h": "d32cc77c3cc9d4dbd8e7b1c6112db398aa361a0ab3c941e3e63f6cbd8e6969d5",
+    "modules/mod-playerbots/src/Mgr/Item/BisListMgr.h": "ca97ba70f83991fbff954b17956b2a510487969009ee7a64f80913f1fd14a8a9",
+    "modules/mod-playerbots/src/Mgr/Item/StatsWeightCalculator.h": "2bd438263f07cc2752bc8cdafaca73a8503cc7251152501ed6d367512f887bd1",
+    "modules/mod-individual-progression/src/IndividualProgression.h": "d42a32d0a8d0ab7102c260e044bc6ae54ec95324a702f7da4c06085294ed674c"
+  }
+}

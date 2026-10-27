@@ -1,0 +1,138 @@
+#include "RaidEquipmentCandidateRules.h"
+#include <cmath>
+#include <iostream>
+#include <limits>
+
+using namespace RaidManager;
+
+bool RunIndexRegression();
+bool RunPreparationRegression();
+
+namespace
+{
+    int Checks = 0;
+    int Failures = 0;
+
+    void Check(bool value, char const* name)
+    {
+        ++Checks;
+        if (!value)
+        {
+            ++Failures;
+            std::cerr << "FAIL: " << name << '\n';
+        }
+    }
+}
+
+int main()
+{
+    CandidateLimits classic{71, static_cast<uint8>(UnlockStage::ClassicZG), 60, 19863, 1};
+    CandidateCatalogEntry unknown{20000, 65, 60, 1, 4, 1, 3, 0, 0, 0, false};
+    Check(CheckCandidateLimits(unknown, classic, 60) == CandidateRejection::None,
+        "unknown source is allowed under the new bounded policy");
+    unknown.ilvl = 72;
+    Check(CheckCandidateLimits(unknown, classic, 60) == CandidateRejection::ItemLevel, "current raid ilvl ceiling");
+    unknown.ilvl = 65;
+    unknown.requiredLevel = 61;
+    Check(CheckCandidateLimits(unknown, classic, 80) == CandidateRejection::RequiredLevel, "era required-level limit");
+    unknown.requiredLevel = 60;
+    Check(CheckCandidateLimits(unknown, classic, 59) == CandidateRejection::RequiredLevel, "actual character level");
+    unknown.item = 23728;
+    Check(CheckCandidateLimits(unknown, classic, 60) == CandidateRejection::EraGuard,
+        "low-ilvl post-Classic item is not approved");
+    unknown.item = 20000;
+    unknown.observedStage = static_cast<uint8>(UnlockStage::ClassicAQ);
+    Check(CheckCandidateLimits(unknown, classic, 60) == CandidateRejection::KnownLaterStage,
+        "known AQ item is rejected in ZG even at low ilvl");
+    unknown.observedStage = 0;
+    Check(CheckCandidateLimits(unknown, {}, 60) == CandidateRejection::UnknownPolicy, "unknown raid fails closed");
+    CandidateLimits tbc{141, static_cast<uint8>(UnlockStage::TbcT5), 70, 0, 1};
+    unknown.item = 35570;
+    Check(CheckCandidateLimits(unknown, tbc, 70) == CandidateRejection::EraGuard, "post-TBC low-ilvl guard");
+    unknown.item = 30000;
+    Check(CheckCandidateLimits(unknown, tbc, 70) == CandidateRejection::None, "eligible unknown TBC candidate");
+
+    auto zg = GetCandidateLimits(309, 0, 20);
+    Check(zg.ilvl == 71 && zg.ilvl != 78, "ZG cap is loot data, not BiS key 78");
+    auto rs = GetCandidateLimits(724, 3, 25);
+    Check(rs.ilvl == 284 && rs.ilvl != 290, "Ruby heroic cap is actual ilvl 284");
+    Check(GetCandidateLimits(724, 3, 10).ilvl == 0, "actual raid capacity is enforced");
+    Check(GetCandidateLimits(624, 0, 10).ilvl == 0, "unresolved catch-up profile is not guessed");
+    auto anchor = GetCandidateMetadata(rs.anchorItem);
+    Check(anchor && anchor->ilvl == rs.ilvl, "ceiling has a real item-template anchor");
+    CandidateCatalogEntry heroic{50000, 200, 80, 1, 4, 1, 4,
+        static_cast<uint8>(UnlockStage::WrathIcc), 0, 2, true};
+    auto icc = GetCandidateLimits(631, 0, 10);
+    Check(CheckCandidateLimits(heroic, icc, 80) == CandidateRejection::KnownHigherDifficulty,
+        "known heroic source cannot be laundered through ilvl fallback");
+    auto ulduar = GetCandidateLimits(603, 0, 10);
+    auto contaminated = GetCandidateMetadata(51842);
+    Check(contaminated && CheckCandidateLimits(*contaminated, ulduar, 80) != CandidateRejection::None,
+        "ICC neck 51842 in the Ulduar BiS row is excluded");
+
+    Check(IsImprovement(100, 106), "meaningful improvement accepted");
+    Check(!IsImprovement(100, 100), "equal item retains current gear");
+    Check(!IsImprovement(100, 104), "marginal score fluctuation is not an upgrade");
+    Check(!IsImprovement(100, 90), "downgrade rejected");
+    Check(!IsImprovement(0, std::numeric_limits<float>::infinity()), "infinite scores rejected");
+    Check(!IsImprovement(100, std::numeric_limits<float>::quiet_NaN()), "NaN scores rejected");
+    Check(IsImprovement(0, 1), "empty slot can receive useful gear");
+
+    Check(PreferCandidate(CandidateRoute::CurrentBis, 10, 1, CandidateRoute::IlvlFallback, 1000, 2),
+        "current BiS precedes unknown pool regardless of relative candidate score");
+    Check(PreferCandidate(CandidateRoute::PreviousBis, 10, 1, CandidateRoute::Dungeon, 1000, 2),
+        "previous BiS precedes dungeon");
+    Check(PreferCandidate(CandidateRoute::Dungeon, 10, 1, CandidateRoute::IlvlFallback, 1000, 2),
+        "verified dungeon precedes ilvl pool");
+    Check(!PreferCandidate(CandidateRoute::IlvlFallback, 1000, 1, CandidateRoute::CurrentBis, 10, 2),
+        "unknown pool cannot override valid current BiS");
+    Check(PreferCandidate(CandidateRoute::Dungeon, 10, 1, CandidateRoute::Dungeon, 10, 2),
+        "equal candidate scores use deterministic item ID tie-break");
+
+    ProtectedStats before;
+    before.stamina = 30;
+    before.defense = 10;
+    before.armor = 100;
+    auto after = before;
+    after.armor = 200;
+    after.defense = 9;
+    Check(!PreservesRoleFloors(ProtectionRole::Tank, before, after), "tank defense cannot drop for more armor");
+    after = before;
+    after.stamina = 31;
+    Check(PreservesRoleFloors(ProtectionRole::Tank, before, after), "safe tank improvement preserves floors");
+    before = {};
+    before.healing = 30;
+    before.mana = 5;
+    after = before;
+    after.healing = 100;
+    after.mana = 4;
+    Check(!PreservesRoleFloors(ProtectionRole::Healer, before, after), "healer mana sustain protected");
+    before = {};
+    before.hit = 10;
+    after = before;
+    after.hit = 9;
+    Check(!PreservesRoleFloors(ProtectionRole::Caster, before, after), "caster hit protected");
+    before = {};
+    before.weaponDps = 50;
+    after = before;
+    after.weaponDps = 49;
+    Check(!PreservesRoleFloors(ProtectionRole::Physical, before, after), "weapon DPS protected");
+
+    auto pool = GetCandidatePool(0, zg.ilvl);
+    Check(pool.first < pool.second, "fallback pool includes actual head candidates");
+    bool bounded = true;
+    for (auto i = pool.first; i < pool.second; ++i)
+    {
+        auto item = GetPoolCandidate(i);
+        bounded = bounded && item && item->inventoryType == 1 && item->ilvl <= zg.ilvl;
+    }
+    Check(bounded, "slot index and binary ilvl range match actual catalog");
+    Check(GetCandidatePool(3, 999).first == GetCandidatePool(3, 999).second, "shirts never enter equipment pool");
+    auto keys = GetPreviousBisKeys(static_cast<uint8>(UnlockStage::ClassicZG));
+    Check(keys.size() >= 2 && keys[0] == 83 && keys[1] == 78,
+        "previous tier follows release stages rather than subtracting BiS keys");
+    Check(RunIndexRegression(), "stage/class index regression and snapshot fallback");
+    Check(RunPreparationRegression(), "strict preparation sets, admission budget and fair cancellation");
+    std::cout << Checks << " checks, " << Failures << " failures\n";
+    return Failures ? 1 : 0;
+}

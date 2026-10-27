@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "stages": 18,
+  "classes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11
+  ],
+  "slots": 19,
+  "index_bits": 16,
+  "catalog_count": 23122,
+  "reference_count": 1509139,
+  "directory_count": 3421,
+  "unsupported_templates": 3894,
+  "proficiency_sha256": "341a42678faee5f208e0874ab154ee174b99ba469306df7458bdaf0ffcf76967",
+  "reference_bytes": 3018278,
+  "inputs_sha256": {
+    "modules/mod-raid-manager/data/equipment-candidate-catalog.json": "bf6d58c94994eedc1da80584cd2dbc758ded6f11fb2f71f9e9e160ff64df17aa",
+    "data/sql/base/db_world/item_template.sql": "bd4859be01946ca1521f7896f558f665e1e1d98890757a3df30e717b62768cc6",
+    "data/sql/base/db_world/skillraceclassinfo_dbc.sql": "22cc3ebad3417c6c0da4e7b3355e50cad3df63bcccb84e80c9440acf5649c57f",
+    "src/server/game/Entities/Item/ItemTemplate.h": "ba59e1dc1d72e2a0ea855533b9def8295a16493b203686a46cdd8fffcad16402",
+    "src/server/shared/SharedDefines.h": "cb95cb990c20135ea0f7b708562d58ce9a7b358e014ceda4eafe3fd5741f8f3e",
+    "modules/mod-playerbots/src/Mgr/Item/RandomItemMgr.cpp": "42ba41d166886c602c61f45ab89e122ce84aba373a31b47cc3aa1622fc7cfa4f"
+  }
+}

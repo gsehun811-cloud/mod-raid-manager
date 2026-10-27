@@ -1,0 +1,30 @@
+# GiveLevel attempt limit per .raidgroup 20/40 fill command.
+# 0 = unlimited attempts, still bounded by vacant raid slots and the 200 ms work gate.
+# Positive values cap attempts; failures consume an attempt immediately before GiveLevel.
+# Negative values are treated as 0. Missing setting defaults to 0.
+# Equal-level recruitment does not consume attempts. Active commands snapshot this value.
+# Cancellation retains levels and maintenance changes. Promoted bots still need raidprep.
+RaidManager.MaxPromotionsPerRun = 0
+
+# raidprep uses cached Playerbots BiS rows, never BisGearAction or a destructive fallback.
+# Built-in map profiles use exact tier-list keys from the repository's BiS dataset.
+# 0 disables gear application for a map. No item-level stepping is used by difficulty policy.
+# Overrides for known maps (examples; uncomment only when matching the loaded dataset):
+# RaidManager.Prep.BisKey.309 = 78
+# RaidManager.Prep.BisKey.409 = 78
+# RaidManager.Prep.BisKey.631 = 264
+# Exact custom/difficulty profile syntax: map difficulty actualCapacity name bisCacheKey
+# Multiple entries are separated with ';'. Capacity must match the actual InstanceMap capacity.
+# Unknown maps and ambiguous catch-up raids retain existing gear unless explicitly profiled.
+# Exact profiles override map keys; map keys override automatic profiles, including explicit 0.
+# Duplicate exact map/difficulty/capacity entries warn and retain the first entry.
+# Raid BiS lookup ignores AutoGearScoreLimit; AutoGearQualityLimit and core use checks still apply.
+RaidManager.Prep.Profiles = ""
+
+# Optional exact existing AiPlayerbot.PremadeSpecName value per class and role.
+# Feral tank/cat must be explicitly separated. These names exist in the supplied Playerbots template;
+# if your active Playerbots configuration uses other names, change these source template settings.
+RaidManager.Prep.Spec.11.Tank = "bear pve"
+RaidManager.Prep.Spec.11.Melee = "cat pve"
+# Other classes automatically select a matching current/required talent tab, subject to era checks.
+# No professions, riding, reputation or attunement quests are automatically granted by raidprep.

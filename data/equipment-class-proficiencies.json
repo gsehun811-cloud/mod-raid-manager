@@ -1,0 +1,580 @@
+{
+  "schema": 1,
+  "source": "SkillRaceClassInfo.dbc",
+  "sha256": "341a42678faee5f208e0874ab154ee174b99ba469306df7458bdaf0ffcf76967",
+  "meaning": "Possible class proficiency across playable races, not currently learned skills",
+  "skills": [
+    {
+      "skill": 6,
+      "class_mask": 128
+    },
+    {
+      "skill": 8,
+      "class_mask": 128
+    },
+    {
+      "skill": 26,
+      "class_mask": 1
+    },
+    {
+      "skill": 38,
+      "class_mask": 8
+    },
+    {
+      "skill": 39,
+      "class_mask": 8
+    },
+    {
+      "skill": 43,
+      "class_mask": 431
+    },
+    {
+      "skill": 44,
+      "class_mask": 111
+    },
+    {
+      "skill": 45,
+      "class_mask": 13
+    },
+    {
+      "skill": 46,
+      "class_mask": 13
+    },
+    {
+      "skill": 50,
+      "class_mask": 4
+    },
+    {
+      "skill": 51,
+      "class_mask": 4
+    },
+    {
+      "skill": 54,
+      "class_mask": 1147
+    },
+    {
+      "skill": 55,
+      "class_mask": 39
+    },
+    {
+      "skill": 56,
+      "class_mask": 16
+    },
+    {
+      "skill": 78,
+      "class_mask": 16
+    },
+    {
+      "skill": 95,
+      "class_mask": 1535
+    },
+    {
+      "skill": 96,
+      "class_mask": 1024
+    },
+    {
+      "skill": 98,
+      "class_mask": 1535
+    },
+    {
+      "skill": 101,
+      "class_mask": 1535
+    },
+    {
+      "skill": 109,
+      "class_mask": 1535
+    },
+    {
+      "skill": 111,
+      "class_mask": 1535
+    },
+    {
+      "skill": 113,
+      "class_mask": 1535
+    },
+    {
+      "skill": 115,
+      "class_mask": 1535
+    },
+    {
+      "skill": 118,
+      "class_mask": 109
+    },
+    {
+      "skill": 120,
+      "class_mask": 256
+    },
+    {
+      "skill": 124,
+      "class_mask": 1535
+    },
+    {
+      "skill": 125,
+      "class_mask": 1535
+    },
+    {
+      "skill": 126,
+      "class_mask": 1535
+    },
+    {
+      "skill": 129,
+      "class_mask": 1535
+    },
+    {
+      "skill": 130,
+      "class_mask": 128
+    },
+    {
+      "skill": 134,
+      "class_mask": 1024
+    },
+    {
+      "skill": 136,
+      "class_mask": 1493
+    },
+    {
+      "skill": 137,
+      "class_mask": 1535
+    },
+    {
+      "skill": 138,
+      "class_mask": 1535
+    },
+    {
+      "skill": 139,
+      "class_mask": 1535
+    },
+    {
+      "skill": 140,
+      "class_mask": 1535
+    },
+    {
+      "skill": 141,
+      "class_mask": 1535
+    },
+    {
+      "skill": 142,
+      "class_mask": 1535
+    },
+    {
+      "skill": 148,
+      "class_mask": 1535
+    },
+    {
+      "skill": 149,
+      "class_mask": 1535
+    },
+    {
+      "skill": 150,
+      "class_mask": 1535
+    },
+    {
+      "skill": 152,
+      "class_mask": 1535
+    },
+    {
+      "skill": 160,
+      "class_mask": 1123
+    },
+    {
+      "skill": 162,
+      "class_mask": 1535
+    },
+    {
+      "skill": 163,
+      "class_mask": 4
+    },
+    {
+      "skill": 164,
+      "class_mask": 1535
+    },
+    {
+      "skill": 165,
+      "class_mask": 1535
+    },
+    {
+      "skill": 171,
+      "class_mask": 1535
+    },
+    {
+      "skill": 172,
+      "class_mask": 103
+    },
+    {
+      "skill": 173,
+      "class_mask": 1501
+    },
+    {
+      "skill": 176,
+      "class_mask": 13
+    },
+    {
+      "skill": 182,
+      "class_mask": 1535
+    },
+    {
+      "skill": 183,
+      "class_mask": 1535
+    },
+    {
+      "skill": 184,
+      "class_mask": 2
+    },
+    {
+      "skill": 185,
+      "class_mask": 1535
+    },
+    {
+      "skill": 186,
+      "class_mask": 1535
+    },
+    {
+      "skill": 197,
+      "class_mask": 1535
+    },
+    {
+      "skill": 198,
+      "class_mask": 2
+    },
+    {
+      "skill": 199,
+      "class_mask": 64
+    },
+    {
+      "skill": 202,
+      "class_mask": 1535
+    },
+    {
+      "skill": 205,
+      "class_mask": 128
+    },
+    {
+      "skill": 220,
+      "class_mask": 1535
+    },
+    {
+      "skill": 226,
+      "class_mask": 13
+    },
+    {
+      "skill": 227,
+      "class_mask": 1029
+    },
+    {
+      "skill": 228,
+      "class_mask": 400
+    },
+    {
+      "skill": 229,
+      "class_mask": 1063
+    },
+    {
+      "skill": 237,
+      "class_mask": 128
+    },
+    {
+      "skill": 238,
+      "class_mask": 8
+    },
+    {
+      "skill": 239,
+      "class_mask": 8
+    },
+    {
+      "skill": 241,
+      "class_mask": 8
+    },
+    {
+      "skill": 242,
+      "class_mask": 8
+    },
+    {
+      "skill": 243,
+      "class_mask": 1
+    },
+    {
+      "skill": 244,
+      "class_mask": 1
+    },
+    {
+      "skill": 245,
+      "class_mask": 1
+    },
+    {
+      "skill": 246,
+      "class_mask": 2
+    },
+    {
+      "skill": 247,
+      "class_mask": 1024
+    },
+    {
+      "skill": 252,
+      "class_mask": 9
+    },
+    {
+      "skill": 253,
+      "class_mask": 8
+    },
+    {
+      "skill": 254,
+      "class_mask": 8
+    },
+    {
+      "skill": 255,
+      "class_mask": 1
+    },
+    {
+      "skill": 256,
+      "class_mask": 1
+    },
+    {
+      "skill": 257,
+      "class_mask": 1
+    },
+    {
+      "skill": 258,
+      "class_mask": 1
+    },
+    {
+      "skill": 260,
+      "class_mask": 4
+    },
+    {
+      "skill": 262,
+      "class_mask": 4
+    },
+    {
+      "skill": 263,
+      "class_mask": 4
+    },
+    {
+      "skill": 264,
+      "class_mask": 4
+    },
+    {
+      "skill": 267,
+      "class_mask": 2
+    },
+    {
+      "skill": 268,
+      "class_mask": 2
+    },
+    {
+      "skill": 269,
+      "class_mask": 2
+    },
+    {
+      "skill": 272,
+      "class_mask": 1024
+    },
+    {
+      "skill": 273,
+      "class_mask": 4
+    },
+    {
+      "skill": 293,
+      "class_mask": 35
+    },
+    {
+      "skill": 313,
+      "class_mask": 1535
+    },
+    {
+      "skill": 315,
+      "class_mask": 1535
+    },
+    {
+      "skill": 333,
+      "class_mask": 1535
+    },
+    {
+      "skill": 353,
+      "class_mask": 256
+    },
+    {
+      "skill": 354,
+      "class_mask": 256
+    },
+    {
+      "skill": 355,
+      "class_mask": 256
+    },
+    {
+      "skill": 356,
+      "class_mask": 1535
+    },
+    {
+      "skill": 373,
+      "class_mask": 64
+    },
+    {
+      "skill": 374,
+      "class_mask": 64
+    },
+    {
+      "skill": 375,
+      "class_mask": 64
+    },
+    {
+      "skill": 393,
+      "class_mask": 1535
+    },
+    {
+      "skill": 413,
+      "class_mask": 103
+    },
+    {
+      "skill": 414,
+      "class_mask": 1135
+    },
+    {
+      "skill": 415,
+      "class_mask": 1535
+    },
+    {
+      "skill": 416,
+      "class_mask": 1503
+    },
+    {
+      "skill": 418,
+      "class_mask": 1503
+    },
+    {
+      "skill": 419,
+      "class_mask": 1503
+    },
+    {
+      "skill": 420,
+      "class_mask": 1503
+    },
+    {
+      "skill": 433,
+      "class_mask": 67
+    },
+    {
+      "skill": 453,
+      "class_mask": 3
+    },
+    {
+      "skill": 473,
+      "class_mask": 1101
+    },
+    {
+      "skill": 493,
+      "class_mask": 1535
+    },
+    {
+      "skill": 515,
+      "class_mask": 1503
+    },
+    {
+      "skill": 533,
+      "class_mask": 1535
+    },
+    {
+      "skill": 553,
+      "class_mask": 1535
+    },
+    {
+      "skill": 554,
+      "class_mask": 1535
+    },
+    {
+      "skill": 573,
+      "class_mask": 1024
+    },
+    {
+      "skill": 574,
+      "class_mask": 1024
+    },
+    {
+      "skill": 593,
+      "class_mask": 256
+    },
+    {
+      "skill": 594,
+      "class_mask": 2
+    },
+    {
+      "skill": 613,
+      "class_mask": 16
+    },
+    {
+      "skill": 633,
+      "class_mask": 8
+    },
+    {
+      "skill": 673,
+      "class_mask": 1535
+    },
+    {
+      "skill": 713,
+      "class_mask": 1535
+    },
+    {
+      "skill": 733,
+      "class_mask": 1535
+    },
+    {
+      "skill": 753,
+      "class_mask": 1535
+    },
+    {
+      "skill": 754,
+      "class_mask": 1535
+    },
+    {
+      "skill": 755,
+      "class_mask": 1535
+    },
+    {
+      "skill": 756,
+      "class_mask": 1535
+    },
+    {
+      "skill": 759,
+      "class_mask": 1535
+    },
+    {
+      "skill": 760,
+      "class_mask": 1535
+    },
+    {
+      "skill": 762,
+      "class_mask": 1535
+    },
+    {
+      "skill": 769,
+      "class_mask": 1535
+    },
+    {
+      "skill": 770,
+      "class_mask": 32
+    },
+    {
+      "skill": 771,
+      "class_mask": 1535
+    },
+    {
+      "skill": 772,
+      "class_mask": 32
+    },
+    {
+      "skill": 773,
+      "class_mask": 1535
+    },
+    {
+      "skill": 776,
+      "class_mask": 32
+    },
+    {
+      "skill": 777,
+      "class_mask": 1535
+    },
+    {
+      "skill": 778,
+      "class_mask": 1535
+    }
+  ]
+}
